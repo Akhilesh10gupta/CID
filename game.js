@@ -182,7 +182,7 @@ class FlappyBird extends Phaser.Scene {
     this.hasWon = true;
     this.physics.pause();
     if (this.bgMusic.isPlaying) this.bgMusic.stop();
-    this.gameOverText.setText('You Win!');
+    this.gameOverText.setText('Pakda gya BC!');
     this.gameOverText.setFill('#00ff00');
     this.gameOverText.setVisible(true);
   }

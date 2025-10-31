@@ -35,8 +35,8 @@ class FlappyBird extends Phaser.Scene {
       align: 'center',
     }).setOrigin(0.5).setDepth(20);
 
-    this.gameOverText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Game Over\nClick to Restart', {
-      fontSize: '48px',
+    this.gameOverText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Kyu re MC\nClick to Restart', {
+      fontSize: '40px',
       fill: '#ff0000',
       fontFamily: 'Arial',
       stroke: '#000',

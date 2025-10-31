@@ -15,9 +15,9 @@ class FlappyBird extends Phaser.Scene {
   }
 
   create() {
-    this.add.image(this.scale.width / 2, this.scale.height / 2, 'background').setDepth(-1).setDisplaySize(this.scale.width, this.scale.height);
+    this.add.image(400, 300, 'background').setDepth(-1);
 
-    this.player = this.physics.add.sprite(100, this.scale.height / 2, 'player').setOrigin(0.5);
+    this.player = this.physics.add.sprite(100, 300, 'player').setOrigin(0.5);
     this.player.setScale(0.2);
     this.player.setGravityY(0);
 
@@ -35,7 +35,7 @@ class FlappyBird extends Phaser.Scene {
       align: 'center',
     }).setOrigin(0.5).setDepth(20);
 
-    this.gameOverText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Game Over\nClick to Restart', {
+    this.gameOverText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Kyu re MC\nClick to Restart', {
       fontSize: '40px',
       fill: '#ff0000',
       fontFamily: 'Arial',
@@ -98,22 +98,20 @@ class FlappyBird extends Phaser.Scene {
     const pipeSpeed = -220;
     const gap = 220;
     const minGapTop = 50;
-    const maxGapTop = this.scale.height - gap - 50;
+    const maxGapTop = 600 - gap - 50;
     const gapTopY = Phaser.Math.Between(minGapTop, maxGapTop);
 
     const pipeWidth = 80;
 
-    const spawnX = this.scale.width + 50; // spawn just off the right edge
-
-    const topPipe = this.pipes.create(spawnX, 0, 'pipe')
+    const topPipe = this.pipes.create(800, 0, 'pipe')
       .setOrigin(0, 0)
       .setDisplaySize(pipeWidth, gapTopY)
       .setImmovable(true)
       .setVelocityX(pipeSpeed)
       .setDepth(2);
 
-    const bottomPipeHeight = this.scale.height - (gapTopY + gap);
-    const bottomPipe = this.pipes.create(spawnX, gapTopY + gap + bottomPipeHeight / 2, 'pipe')
+    const bottomPipeHeight = 600 - (gapTopY + gap);
+    const bottomPipe = this.pipes.create(800, gapTopY + gap + bottomPipeHeight / 2, 'pipe')
       .setOrigin(0, 0.5)
       .setDisplaySize(pipeWidth, bottomPipeHeight)
       .setImmovable(true)

@@ -6,7 +6,7 @@ class FlappyBird extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('player', 'assets/player.png');
+    this.load.image('player', 'assets/Player.png');
     this.load.image('pipe', 'assets/pipe.png');
     this.load.audio('flap', 'assets/flap.mp3');
     this.load.audio('crash', 'assets/crash.mp3');
@@ -57,7 +57,7 @@ class FlappyBird extends Phaser.Scene {
     this.pipes = this.physics.add.group();
 
     this.score = 0;
-    this.scoreText = this.add.text(20, 20, 'Obstacles Passed: 0', {
+    this.scoreText = this.add.text(20, 20, 'Obstacle Passed: 0', {
       fontSize: '24px',
       fill: '#fff',
       fontFamily: 'Arial',

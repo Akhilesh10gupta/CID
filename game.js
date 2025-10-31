@@ -64,6 +64,7 @@ class FlappyBird extends Phaser.Scene {
     });
 
     this.pipes = this.physics.add.group();
+
     this.score = 0;
     this.scoreText = this.add.text(20, 20, 'Obstacle Passed: 0', {
       fontSize: '24px',
@@ -101,18 +102,21 @@ class FlappyBird extends Phaser.Scene {
     }
     if (!this.isStarted || this.isGameOver || this.hasWon) return;
 
+    const pipeSpeed = this.pipeSpeed;
     const gap = this.pipeGap;
     const minGapTop = 50;
     const maxGapTop = this.scale.height - gap - 50;
     const gapTopY = Phaser.Math.Between(minGapTop, maxGapTop);
-    const pipeWidth = 80;
-    const spawnX = this.scale.width + 50; // spawn just beyond visible area
+
+    const pipeWidth = isMobile() ? 50 : 80;  // smaller pipe width on mobile
+
+    const spawnX = this.scale.width + 50;
 
     const topPipe = this.pipes.create(spawnX, 0, 'pipe')
       .setOrigin(0, 0)
       .setDisplaySize(pipeWidth, gapTopY)
       .setImmovable(true)
-      .setVelocityX(this.pipeSpeed)
+      .setVelocityX(pipeSpeed)
       .setDepth(2);
 
     const bottomPipeHeight = this.scale.height - (gapTopY + gap);
@@ -120,7 +124,7 @@ class FlappyBird extends Phaser.Scene {
       .setOrigin(0, 0.5)
       .setDisplaySize(pipeWidth, bottomPipeHeight)
       .setImmovable(true)
-      .setVelocityX(this.pipeSpeed)
+      .setVelocityX(pipeSpeed)
       .setDepth(2);
 
     this.pipeCount++;
@@ -169,13 +173,13 @@ class FlappyBird extends Phaser.Scene {
   }
 }
 
-// Utility for device detection
+// Utility function to detect mobile
 function isMobile() {
   const ua = navigator.userAgent || navigator.vendor || window.opera;
   return /android|iphone|ipad|ipod|iemobile|blackberry|opera mini/i.test(ua.toLowerCase());
 }
 
-// Phaser game configuration with scale mode
+// Phaser configuration for responsive scaling
 const config = {
   type: Phaser.AUTO,
   width: 800,

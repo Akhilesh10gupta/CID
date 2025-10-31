@@ -15,14 +15,15 @@ class FlappyBird extends Phaser.Scene {
   }
 
   create() {
-    this.add.image(400, 300, 'background').setDepth(-1);
+    this.add.image(this.scale.width / 2, this.scale.height / 2, 'background').setDepth(-1).setDisplaySize(this.scale.width, this.scale.height);
 
-    this.player = this.physics.add.sprite(100, 300, 'player').setOrigin(0.5);
+    this.player = this.physics.add.sprite(100, this.scale.height / 2, 'player').setOrigin(0.5);
     this.player.setScale(0.2);
     this.player.setGravityY(0);
 
     this.isStarted = false;
     this.isGameOver = false;
+    this.hasWon = false;   // New flag for winning state
 
     this.bgMusic = this.sound.add('bgmusic', { loop: true, volume: 0.5 });
 
@@ -35,7 +36,7 @@ class FlappyBird extends Phaser.Scene {
       align: 'center',
     }).setOrigin(0.5).setDepth(20);
 
-    this.gameOverText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Kyu re MC\nClick to Restart', {
+    this.gameOverText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Game Over\nClick to Restart', {
       fontSize: '40px',
       fill: '#ff0000',
       fontFamily: 'Arial',
@@ -47,7 +48,7 @@ class FlappyBird extends Phaser.Scene {
     this.input.on('pointerdown', () => {
       if (!this.isStarted) {
         this.startGame();
-      } else if (this.isGameOver) {
+      } else if (this.isGameOver || this.hasWon) {
         this.scene.restart();
       } else {
         this.flap();
@@ -87,7 +88,7 @@ class FlappyBird extends Phaser.Scene {
   }
 
   addPipes() {
-    if (this.pipeCount >= this.pipeLimit) {
+    if (this.pipeCount >= this.pipeLimit && !this.hasWon && !this.isGameOver) {
       this.pipeTimer.remove(false);
       this.gameWin();
       return;
@@ -98,20 +99,22 @@ class FlappyBird extends Phaser.Scene {
     const pipeSpeed = -220;
     const gap = 220;
     const minGapTop = 50;
-    const maxGapTop = 600 - gap - 50;
+    const maxGapTop = this.scale.height - gap - 50;
     const gapTopY = Phaser.Math.Between(minGapTop, maxGapTop);
 
     const pipeWidth = 80;
 
-    const topPipe = this.pipes.create(800, 0, 'pipe')
+    const spawnX = this.scale.width + 50;
+
+    const topPipe = this.pipes.create(spawnX, 0, 'pipe')
       .setOrigin(0, 0)
       .setDisplaySize(pipeWidth, gapTopY)
       .setImmovable(true)
       .setVelocityX(pipeSpeed)
       .setDepth(2);
 
-    const bottomPipeHeight = 600 - (gapTopY + gap);
-    const bottomPipe = this.pipes.create(800, gapTopY + gap + bottomPipeHeight / 2, 'pipe')
+    const bottomPipeHeight = this.scale.height - (gapTopY + gap);
+    const bottomPipe = this.pipes.create(spawnX, gapTopY + gap + bottomPipeHeight / 2, 'pipe')
       .setOrigin(0, 0.5)
       .setDisplaySize(pipeWidth, bottomPipeHeight)
       .setImmovable(true)
@@ -122,7 +125,7 @@ class FlappyBird extends Phaser.Scene {
   }
 
   update() {
-    if (!this.isStarted || this.isGameOver) return;
+    if (!this.isStarted || this.isGameOver || this.hasWon) return;
 
     if (this.player.y > this.scale.height || this.player.y < 0) {
       this.gameOver();
@@ -144,6 +147,7 @@ class FlappyBird extends Phaser.Scene {
   }
 
   gameOver() {
+    if (this.isGameOver) return; // prevent multiple calls
     this.isGameOver = true;
     this.sound.play('crash');
     this.player.setTint(0xff0000);
@@ -157,7 +161,8 @@ class FlappyBird extends Phaser.Scene {
   }
 
   gameWin() {
-    this.isGameOver = true;
+    if (this.hasWon) return; // prevent multiple calls
+    this.hasWon = true;
     this.physics.pause();
 
     if (this.bgMusic.isPlaying) {

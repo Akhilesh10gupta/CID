@@ -20,7 +20,7 @@ class FlappyBird extends Phaser.Scene {
       .setDisplaySize(this.scale.width, this.scale.height);
 
     this.player = this.physics.add.sprite(100, this.scale.height / 2, 'player').setOrigin(0.5);
-    this.player.setScale(0.2);
+    this.player.setScale(isMobile() ? 0.12 : 0.2);
     this.player.setGravityY(0);
 
     // Mobile-specific settings

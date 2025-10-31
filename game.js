@@ -6,11 +6,11 @@ class FlappyBird extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('player', 'assets/player.png');
+    this.load.image('player', 'assets/Player.png');
     this.load.image('pipe', 'assets/pipe.png');
     this.load.audio('flap', 'assets/flap.mp3');
     this.load.audio('crash', 'assets/crash.mp3');
-    this.load.audio('bgmusic', 'assets/background_music.mp3');  // Load background music
+    this.load.audio('bgmusic', 'assets/background_music.mp3');
     this.load.image('background', 'assets/background.png');
   }
 
@@ -24,7 +24,6 @@ class FlappyBird extends Phaser.Scene {
     this.isStarted = false;
     this.isGameOver = false;
 
-    // Background music setup but not playing yet
     this.bgMusic = this.sound.add('bgmusic', { loop: true, volume: 0.5 });
 
     this.startText = this.add.text(400, 300, 'Tap To Start', {
@@ -72,7 +71,6 @@ class FlappyBird extends Phaser.Scene {
     this.startText.setVisible(false);
     this.player.setGravityY(600);
 
-    // Play background music
     this.bgMusic.play();
 
     this.pipeTimer = this.time.addEvent({
@@ -151,7 +149,6 @@ class FlappyBird extends Phaser.Scene {
     this.player.setTint(0xff0000);
     this.physics.pause();
 
-    // Stop background music on game over
     if (this.bgMusic.isPlaying) {
       this.bgMusic.stop();
     }
@@ -163,7 +160,6 @@ class FlappyBird extends Phaser.Scene {
     this.isGameOver = true;
     this.physics.pause();
 
-    // Stop background music on win
     if (this.bgMusic.isPlaying) {
       this.bgMusic.stop();
     }
@@ -184,6 +180,13 @@ const config = {
   },
   scene: FlappyBird,
   backgroundColor: '#71c5cf',
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    parent: 'game-container', // optional div container in your HTML
+    width: 800,
+    height: 600,
+  }
 };
 
 const game = new Phaser.Game(config);

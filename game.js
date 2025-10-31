@@ -6,7 +6,7 @@ class FlappyBird extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('player', 'assets/Player.png');
+    this.load.image('player', 'assets/player.png');
     this.load.image('pipe', 'assets/pipe.png');
     this.load.audio('flap', 'assets/flap.mp3');
     this.load.audio('crash', 'assets/crash.mp3');
@@ -26,7 +26,7 @@ class FlappyBird extends Phaser.Scene {
 
     this.bgMusic = this.sound.add('bgmusic', { loop: true, volume: 0.5 });
 
-    this.startText = this.add.text(400, 300, 'Tap To Start', {
+    this.startText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Tap To Start', {
       fontSize: '48px',
       fill: '#ffffff',
       fontFamily: 'Arial',
@@ -35,7 +35,7 @@ class FlappyBird extends Phaser.Scene {
       align: 'center',
     }).setOrigin(0.5).setDepth(20);
 
-    this.gameOverText = this.add.text(400, 300, 'Game Over\nClick to Restart', {
+    this.gameOverText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Game Over\nClick to Restart', {
       fontSize: '48px',
       fill: '#ff0000',
       fontFamily: 'Arial',
@@ -124,7 +124,7 @@ class FlappyBird extends Phaser.Scene {
   update() {
     if (!this.isStarted || this.isGameOver) return;
 
-    if (this.player.y > 600 || this.player.y < 0) {
+    if (this.player.y > this.scale.height || this.player.y < 0) {
       this.gameOver();
       return;
     }
@@ -170,20 +170,27 @@ class FlappyBird extends Phaser.Scene {
   }
 }
 
+// Device detection
+function isMobile() {
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+  return /android|iphone|ipad|ipod|iemobile|blackberry|opera mini/i.test(ua.toLowerCase());
+}
+
+// Phaser config with dynamic scale mode
 const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
+  backgroundColor: '#71c5cf',
+  parent: 'game-container',
   physics: {
     default: 'arcade',
     arcade: { debug: false }
   },
   scene: FlappyBird,
-  backgroundColor: '#71c5cf',
   scale: {
-    mode: Phaser.Scale.FIT,
+    mode: isMobile() ? Phaser.Scale.RESIZE : Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    parent: 'game-container', // optional div container in your HTML
     width: 800,
     height: 600,
   }

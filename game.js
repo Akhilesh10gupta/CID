@@ -15,15 +15,23 @@ class FlappyBird extends Phaser.Scene {
   }
 
   create() {
-    this.add.image(this.scale.width / 2, this.scale.height / 2, 'background').setDepth(-1).setDisplaySize(this.scale.width, this.scale.height);
+    this.add.image(this.scale.width / 2, this.scale.height / 2, 'background')
+      .setDepth(-1)
+      .setDisplaySize(this.scale.width, this.scale.height);
 
     this.player = this.physics.add.sprite(100, this.scale.height / 2, 'player').setOrigin(0.5);
     this.player.setScale(0.2);
     this.player.setGravityY(0);
 
+    // Mobile-specific settings
+    this.pipeSpeed = isMobile() ? -150 : -220;
+    this.pipeGap = isMobile() ? 280 : 220;
+    this.playerGravity = isMobile() ? 450 : 600;
+    this.flapVelocity = isMobile() ? -150 : -200;
+
     this.isStarted = false;
     this.isGameOver = false;
-    this.hasWon = false;   // New flag for winning state
+    this.hasWon = false;
 
     this.bgMusic = this.sound.add('bgmusic', { loop: true, volume: 0.5 });
 
@@ -56,7 +64,6 @@ class FlappyBird extends Phaser.Scene {
     });
 
     this.pipes = this.physics.add.group();
-
     this.score = 0;
     this.scoreText = this.add.text(20, 20, 'Obstacle Passed: 0', {
       fontSize: '24px',
@@ -70,8 +77,7 @@ class FlappyBird extends Phaser.Scene {
   startGame() {
     this.isStarted = true;
     this.startText.setVisible(false);
-    this.player.setGravityY(600);
-
+    this.player.setGravityY(this.playerGravity);
     this.bgMusic.play();
 
     this.pipeTimer = this.time.addEvent({
@@ -83,7 +89,7 @@ class FlappyBird extends Phaser.Scene {
   }
 
   flap() {
-    this.player.setVelocityY(-200);
+    this.player.setVelocityY(this.flapVelocity);
     this.sound.play('flap', { volume: 0.1 });
   }
 
@@ -93,24 +99,20 @@ class FlappyBird extends Phaser.Scene {
       this.gameWin();
       return;
     }
+    if (!this.isStarted || this.isGameOver || this.hasWon) return;
 
-    if (!this.isStarted) return;
-
-    const pipeSpeed = -220;
-    const gap = 220;
+    const gap = this.pipeGap;
     const minGapTop = 50;
     const maxGapTop = this.scale.height - gap - 50;
     const gapTopY = Phaser.Math.Between(minGapTop, maxGapTop);
-
     const pipeWidth = 80;
-
-    const spawnX = this.scale.width + 50;
+    const spawnX = this.scale.width + 50; // spawn just beyond visible area
 
     const topPipe = this.pipes.create(spawnX, 0, 'pipe')
       .setOrigin(0, 0)
       .setDisplaySize(pipeWidth, gapTopY)
       .setImmovable(true)
-      .setVelocityX(pipeSpeed)
+      .setVelocityX(this.pipeSpeed)
       .setDepth(2);
 
     const bottomPipeHeight = this.scale.height - (gapTopY + gap);
@@ -118,7 +120,7 @@ class FlappyBird extends Phaser.Scene {
       .setOrigin(0, 0.5)
       .setDisplaySize(pipeWidth, bottomPipeHeight)
       .setImmovable(true)
-      .setVelocityX(pipeSpeed)
+      .setVelocityX(this.pipeSpeed)
       .setDepth(2);
 
     this.pipeCount++;
@@ -136,7 +138,7 @@ class FlappyBird extends Phaser.Scene {
       if (pipe.x < this.player.x && !pipe.scored) {
         pipe.scored = true;
         this.score += 0.5;
-        this.scoreText.setText('Obstacles Passed: ' + Math.floor(this.score));
+        this.scoreText.setText('Obstacle Passed: ' + Math.floor(this.score));
       }
       if (pipe.x < -pipe.displayWidth) {
         this.pipes.remove(pipe, true, true);
@@ -147,41 +149,33 @@ class FlappyBird extends Phaser.Scene {
   }
 
   gameOver() {
-    if (this.isGameOver) return; // prevent multiple calls
+    if (this.isGameOver) return;
     this.isGameOver = true;
     this.sound.play('crash');
     this.player.setTint(0xff0000);
     this.physics.pause();
-
-    if (this.bgMusic.isPlaying) {
-      this.bgMusic.stop();
-    }
-
+    if (this.bgMusic.isPlaying) this.bgMusic.stop();
     this.gameOverText.setVisible(true);
   }
 
   gameWin() {
-    if (this.hasWon) return; // prevent multiple calls
+    if (this.hasWon) return;
     this.hasWon = true;
     this.physics.pause();
-
-    if (this.bgMusic.isPlaying) {
-      this.bgMusic.stop();
-    }
-
+    if (this.bgMusic.isPlaying) this.bgMusic.stop();
     this.gameOverText.setText('You Win!');
     this.gameOverText.setFill('#00ff00');
     this.gameOverText.setVisible(true);
   }
 }
 
-// Device detection
+// Utility for device detection
 function isMobile() {
   const ua = navigator.userAgent || navigator.vendor || window.opera;
   return /android|iphone|ipad|ipod|iemobile|blackberry|opera mini/i.test(ua.toLowerCase());
 }
 
-// Phaser config with dynamic scale mode
+// Phaser game configuration with scale mode
 const config = {
   type: Phaser.AUTO,
   width: 800,

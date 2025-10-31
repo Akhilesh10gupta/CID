@@ -15,12 +15,22 @@ class FlappyBird extends Phaser.Scene {
   }
 
   create() {
+    // Reset game state
+    this.pipeCount = 0;
+    this.isStarted = false;
+    this.isGameOver = false;
+    this.hasWon = false;
+    this.score = 0;
+
+    // Add background scaled to viewport
     this.add.image(this.scale.width / 2, this.scale.height / 2, 'background')
       .setDepth(-1)
       .setDisplaySize(this.scale.width, this.scale.height);
 
-    this.player = this.physics.add.sprite(100, this.scale.height / 2, 'player').setOrigin(0.5);
-    this.player.setScale(isMobile() ? 0.12 : 0.2);
+    // Create player sprite
+    this.player = this.physics.add.sprite(100, this.scale.height / 2, 'player')
+      .setOrigin(0.5)
+      .setScale(isMobile() ? 0.12 : 0.2);
     this.player.setGravityY(0);
 
     // Mobile-specific settings
@@ -29,12 +39,10 @@ class FlappyBird extends Phaser.Scene {
     this.playerGravity = isMobile() ? 450 : 600;
     this.flapVelocity = isMobile() ? -150 : -200;
 
-    this.isStarted = false;
-    this.isGameOver = false;
-    this.hasWon = false;
-
+    // Initialize music
     this.bgMusic = this.sound.add('bgmusic', { loop: true, volume: 0.5 });
 
+    // Set text elements
     this.startText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Tap To Start', {
       fontSize: '48px',
       fill: '#ffffff',
@@ -53,19 +61,25 @@ class FlappyBird extends Phaser.Scene {
       align: 'center',
     }).setOrigin(0.5).setDepth(20).setVisible(false);
 
+    // Input handler
     this.input.on('pointerdown', () => {
       if (!this.isStarted) {
         this.startGame();
       } else if (this.isGameOver || this.hasWon) {
         this.scene.restart();
+        // Reset flags after restart
+        this.isStarted = false;
+        this.isGameOver = false;
+        this.hasWon = false;
       } else {
         this.flap();
       }
     });
 
+    // Group for pipes
     this.pipes = this.physics.add.group();
 
-    this.score = 0;
+    // Score display
     this.scoreText = this.add.text(20, 20, 'Obstacle Passed: 0', {
       fontSize: '24px',
       fill: '#fff',
@@ -95,6 +109,7 @@ class FlappyBird extends Phaser.Scene {
   }
 
   addPipes() {
+    // Do not add pipes if over or won
     if (this.pipeCount >= this.pipeLimit && !this.hasWon && !this.isGameOver) {
       this.pipeTimer.remove(false);
       this.gameWin();
@@ -108,8 +123,7 @@ class FlappyBird extends Phaser.Scene {
     const maxGapTop = this.scale.height - gap - 50;
     const gapTopY = Phaser.Math.Between(minGapTop, maxGapTop);
 
-    const pipeWidth = isMobile() ? 50 : 80;  // smaller pipe width on mobile
-
+    const pipeWidth = isMobile() ? 50 : 80;
     const spawnX = this.scale.width + 50;
 
     const topPipe = this.pipes.create(spawnX, 0, 'pipe')
@@ -144,6 +158,7 @@ class FlappyBird extends Phaser.Scene {
         this.score += 0.5;
         this.scoreText.setText('Obstacle Passed: ' + Math.floor(this.score));
       }
+      // Fix here: use pipe.displayWidth, not pipe.displaySize.width
       if (pipe.x < -pipe.displayWidth) {
         this.pipes.remove(pipe, true, true);
       }
@@ -173,13 +188,11 @@ class FlappyBird extends Phaser.Scene {
   }
 }
 
-// Utility function to detect mobile
 function isMobile() {
   const ua = navigator.userAgent || navigator.vendor || window.opera;
   return /android|iphone|ipad|ipod|iemobile|blackberry|opera mini/i.test(ua.toLowerCase());
 }
 
-// Phaser configuration for responsive scaling
 const config = {
   type: Phaser.AUTO,
   width: 800,
